@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using ExitGames.Client.Photon;
 using UnityEngine;
 
-namespace HollowKnightMP
+namespace HKMPMain
 {
     public class NetworkManager : MonoBehaviour, IPunCallbacks
     {

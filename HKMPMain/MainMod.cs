@@ -8,7 +8,7 @@ using UnityEngine;
 using Harmony;
 
 
-namespace HollowKnightMP
+namespace HKMPMain
 {
     public class MainMod
     {

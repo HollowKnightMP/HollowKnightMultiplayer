@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using Harmony;
 using UnityEngine;
 
-namespace HollowKnightMP
+namespace HKMPMain
 {
     [HarmonyPatch(typeof(GameManager))]
     [HarmonyPatch("ReturnToMainMenu")]

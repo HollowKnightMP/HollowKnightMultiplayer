@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Harmony;
 
-namespace HollowKnightMP
+namespace HKMPMain
 {
     [HarmonyPatch(typeof(HeroController))]
     [HarmonyPatch("Awake")]

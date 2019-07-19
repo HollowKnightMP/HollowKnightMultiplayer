@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Photon;
 
-namespace HollowKnightMP
+namespace HKMPMain
 {
     public class NetworkPlayerController : PunBehaviour, IPunObservable
     {

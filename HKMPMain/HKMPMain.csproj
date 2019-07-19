@@ -34,13 +34,13 @@
   <ItemGroup>
     <Reference Include="0Harmony-1.2.0.1, Version=1.2.0.1, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>bin\Debug\0Harmony-1.2.0.1.dll</HintPath>
+      <HintPath>..\Dependencies\0Harmony-1.2.0.1.dll</HintPath>
     </Reference>
     <Reference Include="Assembly-CSharp_publicized">
       <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\publicized_assemblies\Assembly-CSharp_publicized.dll</HintPath>
     </Reference>
     <Reference Include="Photon3Unity3D">
-      <HintPath>..\PhotonUnityNetworking\bin\Debug\Photon3Unity3D.dll</HintPath>
+      <HintPath>..\Dependencies\Photon3Unity3D.dll</HintPath>
     </Reference>
     <Reference Include="PlayMaker, Version=1.6.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

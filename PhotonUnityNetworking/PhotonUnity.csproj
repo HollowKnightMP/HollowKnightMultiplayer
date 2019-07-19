@@ -33,7 +33,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Photon3Unity3D">
-      <HintPath>..\..\..\..\Documents\Photon Test\Builds\Photon Test_Data\Managed\Photon3Unity3D.dll</HintPath>
+      <HintPath>..\Dependencies\Photon3Unity3D.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
