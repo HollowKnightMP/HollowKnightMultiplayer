@@ -1,0 +1,148 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>PhotonUnity</RootNamespace>
+    <AssemblyName>PhotonUnity</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>bin\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>..\..\..\..\Documents\Photon Test\Builds\Photon Test_Data\Managed\Photon3Unity3D.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+    <Reference Include="UnityEngine.AnimationModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.AnimationModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.CoreModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.CoreModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.IMGUIModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.IMGUIModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.Physics2DModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.Physics2DModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.PhysicsModule">
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.PhysicsModule.dll</HintPath>
+    </Reference>
+    <Reference Include="UnityEngine.UI, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\..\..\..\..\Program Files (x86)\Hollow Knight\hollow_knight_Data\Managed\UnityEngine.UI.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="CustomTypes.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="Enums.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="Extensions.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="FriendInfo.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="GizmoType.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="LoadbalancingPeer.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="NetworkingPeer.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonClasses.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonHandler.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonLagSimulationGui.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonNetwork.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonPlayer.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonStatsGui.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonStreamQueue.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PhotonView.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="PingCloudRegions.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Room.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="RoomInfo.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="RPC.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="ServerSettings.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="SocketUdp.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="SocketWebTcp.cs">
+      <CustomToolNamespace>PhotonUnity</CustomToolNamespace>
+    </Compile>
+    <Compile Include="Views\PhotonAnimatorView.cs" />
+    <Compile Include="Views\PhotonRigidbody2DView.cs" />
+    <Compile Include="Views\PhotonRigidbodyView.cs" />
+    <Compile Include="Views\PhotonTransformView.cs" />
+    <Compile Include="Views\PhotonTransformViewPositionControl.cs" />
+    <Compile Include="Views\PhotonTransformViewPositionModel.cs" />
+    <Compile Include="Views\PhotonTransformViewRotationControl.cs" />
+    <Compile Include="Views\PhotonTransformViewRotationModel.cs" />
+    <Compile Include="Views\PhotonTransformViewScaleControl.cs" />
+    <Compile Include="Views\PhotonTransformViewScaleModel.cs" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PostBuildEvent>
+    </PostBuildEvent>
+  </PropertyGroup>
+</Project>

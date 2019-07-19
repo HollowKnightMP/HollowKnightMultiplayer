@@ -5,6 +5,8 @@ VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP", "HollowKnightMP\HollowKnightMP.csproj", "{4607F1ED-BE60-4377-B642-958175626BA4}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotonUnity", "PhotonUnityNetworking\PhotonUnity.csproj", "{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
