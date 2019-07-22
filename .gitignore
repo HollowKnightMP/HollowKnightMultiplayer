@@ -1,0 +1,10 @@
+﻿################################################################################
+# This .gitignore file was automatically created by Microsoft(R) Visual Studio.
+################################################################################
+
+/HKMPMain/bin/Debug
+/HKMPMain/obj/Debug
+/.vs
+/PhotonUnityNetworking/bin/Debug
+/PhotonUnityNetworking/obj/Debug
+

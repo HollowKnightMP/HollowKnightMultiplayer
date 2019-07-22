@@ -10,21 +10,6 @@ namespace HKMPMain
 {
     public class NetworkPlayerController : PunBehaviour, IPunObservable
     {
-        [Serializable]
-        public class PlayerAnimData
-        {
-            public GlobalEnums.ActorStates moveState;
-            public bool attacking;
-
-            public bool dashing;
-            public bool dashingDown;
-            public bool shadowDashing;
-            public bool sharpShadow;
-
-            public bool facingRight;
-            public bool sitting;
-        }
-
         // Recieved Data
         string clipName;
         bool isVisible;
@@ -44,6 +29,7 @@ namespace HKMPMain
         public ParticleSystem shadowDash;
         public ParticleSystem jumpFeathers;
         public GameObject jumpWings;
+        public GameObject dreamNailVFX;
 
         public void Update()
         {
@@ -127,12 +113,6 @@ namespace HKMPMain
                 clipName = stream.ReceiveNext() as string;
                 facingRight = (bool)stream.ReceiveNext();
             }
-        }
-
-        [PunRPC]
-        public void TakeDamage(GlobalEnums.CollisionSide dir)
-        {
-            HeroController.instance.TakeDamage(gameObject, dir, 1, 1);
         }
     }
 }

@@ -4,16 +4,24 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using UnityEngine;
+using UnityEngine.UI;
 
 namespace HKMPMain
 {
     public class NetworkUI : MonoBehaviour
     {
-        public void OnGUI()
+        Text connectedMessage;
+
+        public void Awake()
+        {
+            connectedMessage = transform.Find("MainInfo/InfoText").GetComponent<Text>();
+        }
+
+        public void Update()
         {
             string connectionmsg = "";
 
-            switch(MainMod.manager.status)
+            switch (MainMod.manager.status)
             {
                 case NetworkManager.ConnectionStatus.NotConnected:
                     connectionmsg = "Not Connected";
@@ -28,11 +36,11 @@ namespace HKMPMain
                     connectionmsg = "Connecting...";
                     break;
                 case NetworkManager.ConnectionStatus.InRoom:
-                    connectionmsg = "In main game room";
+                    connectionmsg = $"In main game room ({PhotonNetwork.room.PlayerCount} players)";
                     break;
             }
 
-            GUILayout.Label(connectionmsg);
+            connectedMessage.text = connectionmsg;
         }
     }
 }
