@@ -10,4 +10,4 @@ The mod is not ready for public use. If you want to help me develop it, make a n
 - Settings UI
 - Maybe sync game state (map, charms, etc)
 - PvP Colosseum arena
-- Rebalance game for multiplayer?
+- Rebalance game for multiplayer (nail damage/enemy health)?
