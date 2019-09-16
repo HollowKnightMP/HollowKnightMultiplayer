@@ -8,6 +8,6 @@ The mod is not ready for public use. If you want to help me develop it, make a n
 - Finish Enemy sync (need to figure out how to spawn them from resources)
 - Boss sync
 - Settings UI
-- Maybe sync game state (map, charms, etc)
+- ~~Maybe sync game state (map, charms, etc)~~
 - PvP Colosseum arena
 - Rebalance game for multiplayer (nail damage/enemy health)?
