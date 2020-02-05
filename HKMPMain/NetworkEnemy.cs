@@ -1,37 +1,28 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
-using UnityEngine;
 using Photon;
+using UnityEngine;
 
 namespace HKMPMain
 {
     public class NetworkEnemy : PunBehaviour, IPunObservable
     {
-        Vector3 lastPosition = Vector3.zero;
-        string animClip = "";
-        int health = 1;
+        // Recieved Data
+        Vector3 recievedPosition;
+        string recievedAnimation;
 
+        // Local Data
         public tk2dSpriteAnimator anim;
-        public HealthManager hp;
 
-        void Update()
+        public void Update()
         {
-            if(health == 0)
+            if(!photonView.isMine)
             {
-                Destroy(gameObject);
-            }
-            if(!photonView.isMine && MainMod.manager.otherPlayerScene == GameManager.instance.sceneName)
-            {
-                transform.position = Vector3.Lerp(transform.position, lastPosition, 0.2f);
-                //anim.Play(animClip);
-            }
-            
-            if(!photonView.isMine && MainMod.manager.otherPlayerScene != GameManager.instance.sceneName)
-            {
-                Destroy(gameObject);
+                transform.position = recievedPosition;
+                anim.Play(recievedAnimation);
             }
         }
 
@@ -40,15 +31,27 @@ namespace HKMPMain
             if(stream.isWriting)
             {
                 stream.SendNext(transform.position);
-                stream.SendNext(anim.currentClip.name);
-                stream.SendNext(hp.hp);
+                stream.SendNext(anim.CurrentClip.name);
             }
             else if(stream.isReading)
             {
-                lastPosition = (Vector3)stream.ReceiveNext();
-                animClip = (string)stream.ReceiveNext();
-                health = (int)stream.ReceiveNext();
+                recievedPosition = (Vector3)stream.ReceiveNext();
+                recievedAnimation = (string)stream.ReceiveNext();
             }
+        }
+
+        public void OnDestroy()
+        {
+            NetworkManager.main.StartCoroutine(UnallocateEnemyID(photonView.viewID));
+        }
+
+        public static IEnumerator UnallocateEnemyID(int viewID)
+        {
+            yield return null;
+
+            PhotonNetwork.UnAllocateViewID(viewID);
+
+            yield break;
         }
     }
 }
