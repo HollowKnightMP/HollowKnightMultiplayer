@@ -1,13 +1,8 @@
-﻿using System;
-using System.Reflection;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+﻿using System.Reflection;
 using UnityEngine;
 using Harmony;
-using UnityEngine.UI;
 using Modding;
+using Console = System.Console;
 
 namespace HKMPMain
 {
@@ -21,6 +16,7 @@ namespace HKMPMain
         {
             if (!manager)
             {
+                Console.WriteLine("[HollowKnightMP] Initializing mod");
                 photonSettings = ScriptableObject.CreateInstance<ServerSettings>();
 
                 photonSettings.AppID = "91f3e558-5a8a-457c-81dd-807771c71246";
@@ -29,28 +25,24 @@ namespace HKMPMain
                 photonSettings.Protocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
                 photonSettings.PreferredRegion = CloudRegionCode.au;
                 photonSettings.JoinLobby = true;
-                photonSettings.RpcList = new List<string>()
-                {
-                    "TakeDamage"
-                };
 
                 PhotonNetwork.PhotonServerSettings = photonSettings;
 
                 GameObject gobj = new GameObject("NetManager");
                 manager = gobj.AddComponent<NetworkManager>();
 
-                bundle = AssetBundle.LoadFromFile("Assets/mpassets.assets");
+                bundle = AssetBundle.LoadFromFile("Assets/mpassets");
 
                 // Create Canvas
                 GameObject netCanv = GameObject.Instantiate(bundle.LoadAsset("NetworkCanvas") as GameObject);
                 netCanv.transform.Find("MainInfo").localPosition = new Vector2((-Screen.width/2) + 170, (Screen.height/2) + -30);
-                netCanv.AddComponent<NetworkUI>();
+                manager.ui = netCanv.AddComponent<NetworkUI>();
                 GameObject.DontDestroyOnLoad(netCanv);
 
                 GameObject.DontDestroyOnLoad(gobj);
 
                 HarmonyInstance harmony = HarmonyInstance.Create("hollowknightmp");
-                harmony.PatchAll(Assembly.GetExecutingAssembly());
+                harmony.PatchAll(Assembly.GetAssembly(typeof(NetworkManager)));
             }
         }
     }

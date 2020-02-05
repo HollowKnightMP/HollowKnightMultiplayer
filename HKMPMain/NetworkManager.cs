@@ -1,478 +1,349 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using ExitGames.Client.Photon;
+using System.IO;
 using UnityEngine;
-using Modding;
-using Console = System.Console;
-using ModConsole = Modding.Console;
+using GlobalEnums;
+using Steamworks;
 
 namespace HKMPMain
 {
-    public class NetworkManager : MonoBehaviour, IPunCallbacks
+    public class NetworkManager : MonoBehaviour
     {
-        public ConnectionStatus status = ConnectionStatus.NotConnected;
+        public static NetworkManager main;
+        // Is set to true when the player is in a room, the knight has spawned and the local player has not been initialized
+        public bool needsToSetupPlayer = false;
+        public NetworkPlayer localPlayer;
 
-        public NetworkPlayerController otherPlayer;
-        public PhotonView localPlayerView;
-        public Dictionary<string, GameObject> enemiesByName = new Dictionary<string, GameObject>();
-        public bool hasSetupPlayer = false;
-        public bool knightHasSpawned = false;
-        public bool needsToSetupOtherPlayer = false;
-        public int otherPlayerID;
+        public NetworkPlayer sceneHost;
 
-        public List<string> otherPlayerEnemies = new List<string>();
-        public List<int> otherPlayerEnemyIDs = new List<int>();
-        public string otherPlayerScene = "";
+        // Queue for setting up other players
+        public Dictionary<PhotonPlayer, int> setupQueue = new Dictionary<PhotonPlayer, int>();
+        // Instantiated player objects (excluding local player)
+        public Dictionary<PhotonPlayer, NetworkPlayer> playerList = new Dictionary<PhotonPlayer, NetworkPlayer>();
+        public List<string> friends = new List<string>();
+        public List<string> steamFriendNames = new List<string>();
+        public List<string> nonSteamFriendNames = new List<string>();
 
-        public static readonly byte OnPlayerSetupEvent = 0;
-        public static readonly byte OnSwingNailEvent = 1;
-        public static readonly byte OnSceneTransitionEvent = 2;
+        public List<FriendInfo> steamFriends = new List<FriendInfo>();
+        public List<FriendInfo> nonSteamFriends = new List<FriendInfo>();
 
-        public enum ConnectionStatus
-        {
-            NotConnected,
-            Connecting,
-            ConnectedToPhoton,
-            InLobby,
-            InRoom
-        }
-
-        void OnPhotonEvent(byte eventCode, object content, int senderId)
-        {
-            if (eventCode == OnPlayerSetupEvent)
-            {
-                object[] data = (object[])content;
-                int id = (int)data[0];
-                PhotonPlayer player = PhotonPlayer.Find(senderId);
-
-                if (hasSetupPlayer)
-                {
-                    CreateRemotePlayerPrefab(player, id);
-                }
-                else
-                {
-                    needsToSetupOtherPlayer = true;
-                    otherPlayerID = id;
-                    Console.WriteLine($"[HollowKnightMP] Added {player.NickName} to creation queue");
-                }
-            }
-            // Called by the other player's HeroController.Attack patch
-            else if (eventCode == OnSwingNailEvent)
-            {
-                switch ((GlobalEnums.AttackDirection)content)
-                {
-                    case GlobalEnums.AttackDirection.normal:
-                        otherPlayer.slashNormal.StartSlash();
-                        break;
-                    case GlobalEnums.AttackDirection.upward:
-                        otherPlayer.slashUp.StartSlash();
-                        break;
-                    case GlobalEnums.AttackDirection.downward:
-                        otherPlayer.slashDown.StartSlash();
-                        break;
-                }
-            }
-            else if (eventCode == OnSceneTransitionEvent)
-            {
-                SceneData data = JsonUtility.FromJson<SceneData>((string)content);
-
-                otherPlayerEnemies = data.enemyNames;
-                otherPlayerEnemyIDs = data.enemyIDs;
-                otherPlayerScene = data.sceneName;
-            }
-        }
-
-        void PlayerAttack(GlobalEnums.AttackDirection dir)
-        {
-            RaiseEventOptions options = new RaiseEventOptions();
-            options.CachingOption = EventCaching.DoNotCache;
-
-            PhotonNetwork.RaiseEvent(NetworkManager.OnSwingNailEvent, dir, true, options);
-        }
-
-        void Update()
-        {
-            // Creates other player once they have joined and both players are setup
-            if (hasSetupPlayer && needsToSetupOtherPlayer)
-            {
-                CreateRemotePlayerPrefab(PhotonNetwork.otherPlayers[0], otherPlayerID);
-                needsToSetupOtherPlayer = false;
-            }
-
-            if (knightHasSpawned && PhotonNetwork.inRoom && !hasSetupPlayer)
-            {
-                SetupPlayer();
-            }
-        }
-
-        void Awake()
-        {
-            foreach (HealthManager manager in Resources.FindObjectsOfTypeAll<HealthManager>())
-            {
-                if (manager.gameObject.layer == (int)GlobalEnums.PhysLayers.ENEMIES)
-                {
-                    enemiesByName.Add(manager.gameObject.name, manager.gameObject);
-                }
-            }
-        }
-
-        void OnEnable()
-        {
-            PhotonNetwork.OnEventCall += OnPhotonEvent;
-            ModHooks.Instance.AttackHook += PlayerAttack;
-        }
-
-        void OnDisable()
-        {
-            PhotonNetwork.OnEventCall -= OnPhotonEvent;
-            ModHooks.Instance.AttackHook -= PlayerAttack;
-        }
+        // Should only be set if we are the host
+        public byte[] saveData = null;
 
         [Serializable]
-        public class SceneData
+        public class FriendList
         {
-            public List<string> enemyNames;
-            public List<int> enemyIDs;
-            public string sceneName;
+            public string[] steamFriendNames;
         }
 
-        // TODO: Get enemy data and serialize as a string
-        public string SyncEnemies()
+        // Init methods
+        public void Awake()
         {
-            List<string> enemies = new List<string>();
-            List<int> enemyIds = new List<int>();
-            foreach(HealthManager man in FindObjectsOfType<HealthManager>())
+            main = this;
+            InitializePhoton();
+            GameHooks.Init();
+            ModUI.Init();
+            PhotonNetwork.OnEventCall += NetworkCallbacks.OnPhotonEvent;
+            if(SteamAPI.IsSteamRunning())
             {
-                if(man.gameObject.layer == (int)GlobalEnums.PhysLayers.ENEMIES)
+                PhotonNetwork.playerName = SteamFriends.GetPersonaName();
+                ModUI.main.playerName = PhotonNetwork.playerName;
+
+                int friendCount = SteamFriends.GetFriendCount(EFriendFlags.k_EFriendFlagImmediate);
+                friends = new List<string>();
+                for (int i = 0; i < friendCount; i++)
                 {
-                    PhotonView view = man.gameObject.AddComponent<PhotonView>();
-                    view.viewID = PhotonNetwork.AllocateViewID();
+                    CSteamID friend = SteamFriends.GetFriendByIndex(i, EFriendFlags.k_EFriendFlagImmediate);
+                    string name = SteamFriends.GetFriendPersonaName(friend);
+                    friends.Add(name);
+                    steamFriendNames.Add(name);
+                }
+            }
+            if (PlayerPrefs.HasKey("NonSteamFriends"))
+            {
+                nonSteamFriendNames = JsonUtility.FromJson<FriendList>(PlayerPrefs.GetString("NonSteamFriends")).steamFriendNames.ToList();
 
-                    view.synchronization = ViewSynchronization.UnreliableOnChange;
-                    view.ownershipTransfer = OwnershipOption.Takeover;
+                friends.AddRange(nonSteamFriendNames);
+            }
 
-                    view.TransferOwnership(PhotonNetwork.player);
+            PhotonNetwork.AuthValues = new AuthenticationValues(PhotonNetwork.playerName);
+            ConnectToLobby();
+        }
 
-                    NetworkEnemy sync = man.gameObject.AddComponent<NetworkEnemy>();
-                    sync.anim = man.GetComponent<tk2dSpriteAnimator>();
-                    sync.hp = man;
+        public void InitializePhoton()
+        {
+            MPLogger.Log("Initializing Photon Settings");
+            ServerSettings settings = ScriptableObject.CreateInstance<ServerSettings>();
+            settings.HostType = ServerSettings.HostingOption.BestRegion;
+            settings.AppID = "91f3e558-5a8a-457c-81dd-807771c71246";
+            settings.Protocol = ExitGames.Client.Photon.ConnectionProtocol.Udp;
+            settings.JoinLobby = true;
 
-                    view.ObservedComponents = new List<Component>()
+            PhotonNetwork.PhotonServerSettings = settings;
+        }
+
+        // Monobehaviour messages
+        public void Update()
+        {
+            if(GameManager.instance)
+            {
+                if(GameManager.instance.IsMenuScene())
+                {
+                    if (PhotonNetwork.inRoom && PhotonNetwork.isMasterClient) PhotonNetwork.LeaveRoom();
+                }
+                else if(GameManager.instance.IsGameplayScene())
+                {
+                    foreach(KeyValuePair<PhotonPlayer, int> kvp in setupQueue)
                     {
-                        sync
-                    };
-
-                    enemies.Add(man.name);
-                    enemyIds.Add(view.viewID);
+                        SetupOtherPlayer(kvp.Key, kvp.Value);
+                    }
+                    setupQueue.Clear();
                 }
             }
 
-            SceneData dat = new SceneData();
-            dat.enemyNames = enemies;
-            dat.enemyIDs = enemyIds;
-            dat.sceneName = GameManager.instance.sceneName;
-
-            return JsonUtility.ToJson(dat);
+            if(PhotonNetwork.inRoom && needsToSetupPlayer && GameManager.instance.IsGameplayScene())
+            {
+                SetupLocalPlayer();
+            }
+            else if(!PhotonNetwork.inRoom && localPlayer)
+            {
+                Destroy(localPlayer);
+            }
         }
 
-        public void SetupOtherPlayerEnemies()
+        public void OnApplicationQuit()
         {
-            foreach(HealthManager man in FindObjectsOfType<HealthManager>())
+            PlayerPrefs.SetString("PlayerName", PhotonNetwork.playerName);
+            PlayerPrefs.SetString("Friends", JsonUtility.ToJson(friends));
+            FriendList friendlist = new FriendList();
+            friendlist.steamFriendNames = nonSteamFriendNames.ToArray();
+
+            PlayerPrefs.SetString("NonSteamFriends", JsonUtility.ToJson(friendlist));
+        }
+
+        // Connection methods
+        public void ConnectToLobby()
+        {
+            MPLogger.Log("Connecting to Photon");
+            PhotonNetwork.ConnectUsingSettings("0.0.2");
+        }
+
+        public IEnumerator ReconnectOnceDisconnected()
+        {
+            yield return new WaitUntil(() => !PhotonNetwork.connected);
+
+            ConnectToLobby();
+        }
+        
+        public void CreateGame()
+        {
+            if(GameManager.instance.IsGameplayScene())
             {
-                if(man.gameObject.layer == (int)GlobalEnums.PhysLayers.ENEMIES)
+                MPLogger.Log("Creating room...");
+
+                RoomOptions options = new RoomOptions()
                 {
-                    Destroy(man.gameObject);
-                }
-            }
-
-            for(int i = 0; i < otherPlayerEnemies.Count; i++)
-            {
-                Console.WriteLine($"[HollowKnightMP] Creating other player's enemy: {otherPlayerEnemies[i]}");
-
-                GameObject enemy = GameObject.CreatePrimitive(PrimitiveType.Sphere);
-                enemy.name = otherPlayerEnemies[i];
-                Destroy(enemy.GetComponent<Collider>());
-                PhotonView view = enemy.AddComponent<PhotonView>();
-                view.viewID = otherPlayerEnemyIDs[i];
-                view.synchronization = ViewSynchronization.UnreliableOnChange;
-                view.ownershipTransfer = OwnershipOption.Takeover;
-                view.TransferOwnership(PhotonNetwork.otherPlayers[0]);
-
-                NetworkEnemy netEnem = enemy.AddComponent<NetworkEnemy>();
-
-                view.ObservedComponents = new List<Component>()
-                {
-                    netEnem
+                    CustomRoomProperties = new ExitGames.Client.Photon.Hashtable()
+                    {
+                        { "IsPublic", true },
+                        { "Name", PhotonNetwork.playerName },
+                    },
+                    CustomRoomPropertiesForLobby = new string[] { "IsPublic", "Name" }
                 };
+
+                PhotonNetwork.CreateRoom(new Guid().ToString(), options, PhotonNetwork.lobby);
+            }
+            else
+            {
+                MPLogger.Log("Tried to create room, but we weren't in the game!");
             }
         }
 
-        public void SetupPlayer()
+        public void JoinGame(string name)
         {
-            GameObject player = new GameObject("NetworkPlayer");
-            Console.WriteLine("[HollowKnightMP] Setting up local player networking");
-            localPlayerView = player.AddComponent<PhotonView>();
-            localPlayerView.viewID = PhotonNetwork.AllocateViewID();
-            localPlayerView.synchronization = ViewSynchronization.UnreliableOnChange;
-            localPlayerView.ownershipTransfer = OwnershipOption.Takeover;
-            localPlayerView.TransferOwnership(PhotonNetwork.player);
-
-            NetworkPlayerController sync = player.AddComponent<NetworkPlayerController>();
-
-            localPlayerView.ObservedComponents = new List<Component>()
+            if(GameManager.instance.IsMenuScene())
             {
-                sync
-            };
-
-            object[] eventContent = new object[]
+                MPLogger.Log("Joining room...");
+                PhotonNetwork.JoinRoom(name);
+            }
+            else
             {
-                localPlayerView.viewID
-            };
-
-            RaiseEventOptions options = new RaiseEventOptions();
-            options.CachingOption = EventCaching.AddToRoomCache;
-            options.Receivers = ReceiverGroup.Others;
-
-            PhotonNetwork.RaiseEvent(OnPlayerSetupEvent, eventContent, true, options);
-            DontDestroyOnLoad(player);
-
-            hasSetupPlayer = true;
+                MPLogger.Log("Tried to join a room when we weren't in the menu");
+            }
         }
 
-        public GameObject CreateRemotePlayerPrefab(PhotonPlayer player, int id)
+        // Object spawning methods
+        public int SetupLocalPlayer()
         {
-            Console.WriteLine($"[HollowKnightMP] Creating prefab instance for player {player.NickName} with view ID {id}");
+            MPLogger.Log("Setting up local player");
+            MPLogger.Log($"{HeroController.instance.col2d.GetType().ToString()}");
 
-            GameObject other = new GameObject($"RemotePlayer {player.NickName}");
+            GameObject local = new GameObject("NetworkPlayerSender");
+            DontDestroyOnLoad(local);
 
-            MeshRenderer rend = other.AddComponent<MeshRenderer>();
-            MeshFilter filter = other.AddComponent<MeshFilter>();
-            filter.sharedMesh = HeroController.instance.GetComponent<MeshFilter>().sharedMesh;
-            rend.material = new Material(HeroController.instance.renderer.material);
-            tk2dSpriteAnimator anim = (tk2dSpriteAnimator)CopyComponent(HeroController.instance.animCtrl.animator, other);
-            anim.Library = (tk2dSpriteAnimation)CopyComponent(HeroController.instance.animCtrl.animator.Library, other);
-            anim._sprite = (tk2dBaseSprite)CopyComponent(HeroController.instance.animCtrl.animator.Sprite, other);
-            anim.SetSprite((tk2dSpriteCollectionData)CopyComponent(HeroController.instance.animCtrl.animator.Sprite.collection, other), anim._sprite.spriteId);
+            PhotonView view = local.AddComponent<PhotonView>();
+            NetworkPlayer player = local.AddComponent<NetworkPlayer>();
 
-            // Setup Nail Slashing
-            NailSlash slashUp = Instantiate(HeroController.instance.upSlash).GetComponent<NailSlash>();
-            slashUp.transform.SetParent(other.transform);
-            slashUp.transform.localPosition = HeroController.instance.upSlash.transform.localPosition;
-
-            NailSlash slashNormal = Instantiate(HeroController.instance.normalSlash).GetComponent<NailSlash>();
-            slashNormal.transform.SetParent(other.transform);
-            slashNormal.transform.localPosition = HeroController.instance.normalSlash.transform.localPosition;
-
-            NailSlash slashDown = Instantiate(HeroController.instance.downSlash).GetComponent<NailSlash>();
-            slashDown.transform.SetParent(other.transform);
-            slashDown.transform.localPosition = HeroController.instance.downSlash.transform.localPosition;
-
-            ParticleSystem dash = Instantiate(HeroController.instance.dashParticlesPrefab, other.transform).GetComponent<ParticleSystem>();
-            dash.transform.localPosition = HeroController.instance.dashParticlesPrefab.transform.localPosition;
-
-            ParticleSystem shadowDash = Instantiate(HeroController.instance.shadowdashParticlesPrefab, other.transform).GetComponent<ParticleSystem>();
-            shadowDash.transform.localPosition = HeroController.instance.shadowdashParticlesPrefab.transform.localPosition;
-
-            ParticleSystem feathers = Instantiate(HeroController.instance.dJumpFeathers.gameObject, other.transform).GetComponent<ParticleSystem>();
-            feathers.transform.localPosition = HeroController.instance.dJumpFeathers.transform.localPosition;
-
-            GameObject wings = Instantiate(HeroController.instance.dJumpWingsPrefab, other.transform);
-            wings.transform.localPosition = HeroController.instance.dJumpWingsPrefab.transform.localPosition;
-
-            PhotonView view = other.AddComponent<PhotonView>();
-            view.viewID = id;
-            view.synchronization = ViewSynchronization.UnreliableOnChange;
             view.ownershipTransfer = OwnershipOption.Takeover;
-            view.TransferOwnership(player);
-
-            NetworkPlayerController sync = other.AddComponent<NetworkPlayerController>();
-            view.ObservedComponents = new List<Component>()
+            view.synchronization = ViewSynchronization.UnreliableOnChange;
+            view.viewID = PhotonNetwork.AllocateViewID();
+            view.TransferOwnership(PhotonNetwork.player);
+            view.ObservedComponents = new List<Component>
             {
-                sync
+                player
             };
-            sync.anim = anim;
-            sync.renderer = rend;
-            sync.slashUp = slashUp;
-            sync.slashNormal = slashNormal;
-            sync.slashDown = slashDown;
-            sync.dash = dash;
-            sync.shadowDash = shadowDash;
-            sync.jumpFeathers = feathers;
-            sync.jumpWings = wings;
 
-            DontDestroyOnLoad(other);
-            otherPlayer = sync;
-
-            return other;
-        }
-
-        public Component CopyComponent(Component original, GameObject destination)
-        {
-            Type type = original.GetType();
-            Component copy = destination.AddComponent(type);
-            // Copied fields can be restricted with BindingFlags
-            System.Reflection.FieldInfo[] fields = type.GetFields();
-            foreach (System.Reflection.FieldInfo field in fields)
+            RaiseEventOptions options = new RaiseEventOptions()
             {
-                try
-                {
-                    field.SetValue(copy, field.GetValue(original));
-                }
-                catch(Exception e)
-                {
-                    Console.WriteLine($"[HollowKnightMP] COPYCOMPONENTERROR {e.Message}");
-                }
-            }
-            return copy;
+                CachingOption = EventCaching.AddToRoomCache
+            };
+
+            PhotonNetwork.RaiseEvent(NetworkCallbacks.OnSetupLocalPlayer, view.viewID, true, options);
+
+            localPlayer = player;
+
+            needsToSetupPlayer = false;
+
+            return view.viewID;
         }
 
-        public void AttemptConnect()
+        public void SetupOtherPlayer(PhotonPlayer player, int viewID)
         {
-            status = ConnectionStatus.Connecting;
-            PhotonNetwork.playerName = Guid.NewGuid().ToString();
-            PhotonNetwork.ConnectUsingSettings("0.0.1");
-            Console.WriteLine("[HollowKnightMP] Attempting Connection");
-        }
+            MPLogger.Log($"Setting up other player: {player.NickName}");
+            GameObject playerObj = new GameObject("OTHER");
+            var netSync = playerObj.AddComponent<NetworkPlayer>();
 
-        public void OnConnectedToMaster()
-        {
-        }
+            var view = playerObj.AddComponent<PhotonView>();
 
-        public void OnConnectedToPhoton()
-        {
-            status = ConnectionStatus.ConnectedToPhoton;
-            Console.WriteLine("[HollowKnightMP] Connected to Photon");
-        }
+            var body = playerObj.AddComponent<Rigidbody2D>();
+            body.gravityScale = 0f;
+            body.constraints = RigidbodyConstraints2D.FreezeAll;
+            var box = playerObj.AddComponent<BoxCollider2D>();
+            box.size = ((BoxCollider2D)HeroController.instance.col2d).size;
+            box.offset = ((BoxCollider2D)HeroController.instance.col2d).offset;
+            playerObj.layer = (int)PhysLayers.ENEMIES;
+            playerObj.AddComponent<BigBouncer>();
 
-        public void OnConnectionFail(DisconnectCause cause)
-        {
-        }
+            netSync.takeDamageEffect = GameObject.Instantiate<PlayMakerFSM>(HeroController.instance.damageEffectFSM, playerObj.transform);
+            netSync.takeDamageEffect.transform.localPosition = HeroController.instance.damageEffectFSM.transform.localPosition;
 
-        public void OnCreatedRoom()
-        {
-        }
-
-        public void OnCustomAuthenticationFailed(string debugMessage)
-        {
-        }
-
-        public void OnCustomAuthenticationResponse(Dictionary<string, object> data)
-        {
-        }
-
-        public void OnDisconnectedFromPhoton()
-        {
-            status = ConnectionStatus.NotConnected;
-        }
-
-        public void OnFailedToConnectToPhoton(DisconnectCause cause)
-        {
-            status = ConnectionStatus.NotConnected;
-        }
-
-        public void OnJoinedLobby()
-        {
-            status = ConnectionStatus.InLobby;
-            Console.WriteLine("[HollowKnightMP] Connected to Lobby");
-
-            RoomOptions options = new RoomOptions();
-            options.MaxPlayers = 10;
-            options.IsVisible = true;
-
-            PhotonNetwork.JoinOrCreateRoom("Main", options, PhotonNetwork.lobby);
-        }
-
-        public void OnJoinedRoom()
-        {
-            status = ConnectionStatus.InRoom;
-            Console.WriteLine($"[HollowKnightMP] Connected to Game Room with {PhotonNetwork.room.PlayerCount} players");
-        }
-
-        public void OnLeftLobby()
-        {
-        }
-
-        public void OnLeftRoom()
-        {
-        }
-
-        public void OnLobbyStatisticsUpdate()
-        {
-        }
-
-        public void OnMasterClientSwitched(PhotonPlayer newMasterClient)
-        {
-        }
-
-        public void OnOwnershipRequest(object[] viewAndPlayer)
-        {
-        }
-
-        public void OnOwnershipTransfered(object[] viewAndPlayers)
-        {
-        }
-
-        public void OnPhotonCreateRoomFailed(object[] codeAndMsg)
-        {
-        }
-
-        public void OnPhotonCustomRoomPropertiesChanged(Hashtable propertiesThatChanged)
-        {
-        }
-
-        public void OnPhotonInstantiate(PhotonMessageInfo info)
-        {
-        }
-
-        public void OnPhotonJoinRoomFailed(object[] codeAndMsg)
-        {
-        }
-
-        public void OnPhotonMaxCccuReached()
-        {
-        }
-
-        public void OnPhotonPlayerActivityChanged(PhotonPlayer otherPlayer)
-        {
-        }
-
-        public void OnPhotonPlayerConnected(PhotonPlayer newPlayer)
-        {
-            Console.WriteLine($"[HollowKnightMP] Player {newPlayer.NickName} joined");
-        }
-
-        public void OnPhotonPlayerDisconnected(PhotonPlayer otherPlayer)
-        {
-            if(this.otherPlayer)
+            view.ownershipTransfer = OwnershipOption.Takeover;
+            view.synchronization = ViewSynchronization.UnreliableOnChange;
+            view.viewID = viewID;
+            view.TransferOwnership(player);
+            view.ObservedComponents = new List<Component>
             {
-                Destroy(this.otherPlayer.gameObject);
+                netSync
+            };
+
+            var rend = playerObj.AddComponent<MeshRenderer>();
+            playerObj.AddComponent<MeshFilter>();
+
+            var spriteAnim = playerObj.AddComponent<tk2dSpriteAnimation>();
+            spriteAnim.clips = HeroController.instance.animCtrl.animator.Library.clips;
+            playerObj.AddComponent<tk2dSprite>();
+            var anim = tk2dSpriteAnimator.AddComponent(playerObj, spriteAnim, 0);
+            var collection = playerObj.AddComponent<tk2dSpriteCollectionData>();
+
+            netSync.anim = anim;
+            netSync.renderer = rend;
+
+            collection.spriteDefinitions = HeroController.instance.animCtrl.animator.Sprite.collection.spriteDefinitions;
+
+            anim.SetSprite(collection, 0);
+
+            playerObj.transform.position = HeroController.instance.transform.position + (Vector3.one * 1000f);
+
+            var txt = CreateTextMesh(player.NickName);
+            var follow = txt.gameObject.AddComponent<FollowTransform>();
+            follow.target = playerObj.transform;
+            follow.offset = Vector3.up;
+
+            DontDestroyOnLoad(playerObj);
+            DontDestroyOnLoad(txt.gameObject);
+
+            playerList.Add(player, netSync);
+        }
+
+        public TextMesh CreateTextMesh(string text)
+        {
+            GameObject mesh = new GameObject();
+            mesh.AddComponent<MeshRenderer>();
+
+            TextMesh txt = mesh.AddComponent<TextMesh>();
+            txt.characterSize = 0.05f;
+            txt.fontSize = 100;
+            txt.anchor = TextAnchor.MiddleCenter;
+            txt.text = text;
+
+            return txt;
+        }
+
+        public void CreateNailSwing(int playerID, NetAttackDir dir, bool mantis, bool longnail, bool right)
+        {
+            PhotonPlayer player = PhotonPlayer.Find(playerID);
+
+            if(!playerList.ContainsKey(player))
+            {
+                MPLogger.Log("Got nailswing for player who hasnt been initialized!");
+                return;
             }
-            needsToSetupOtherPlayer = false;
-            otherPlayerID = 0;
-            Console.WriteLine($"[HollowKnightMP] Player {otherPlayer.NickName} left");
+
+            NailSlash original = null;
+            NailSlash slash = null;
+
+            switch (dir)
+            {
+                case NetAttackDir.normal:
+                    original = HeroController.instance.normalSlash;
+                    slash = Instantiate(original);
+                    break;
+                case NetAttackDir.up:
+                    original = HeroController.instance.upSlash;
+                    slash = Instantiate(original);
+                    break;
+                case NetAttackDir.down:
+                    original = HeroController.instance.downSlash;
+                    slash = Instantiate(original);
+                    break;
+                case NetAttackDir.normalalt:
+                    original = HeroController.instance.alternateSlash;
+                    slash = Instantiate(original);
+                    break;
+                case NetAttackDir.wall:
+                    original = HeroController.instance.wallSlash;
+                    slash = Instantiate(original);
+                    break;
+            }
+
+            slash.SetMantis(mantis);
+            slash.SetLongnail(longnail);
+
+            slash.StartSlash();
+            slash.gameObject.layer = (int)PhysLayers.ENEMIES;
+
+            Vector3 scale = slash.transform.localScale;
+            scale.x *= right ? -1 : 1;
+            slash.transform.localScale = scale;
+
+            var follow = slash.gameObject.AddComponent<FollowTransform>();
+            follow.target = NetworkManager.main.playerList[player].transform;
+            follow.offset = original.transform.localPosition;
+
+            Destroy(slash.gameObject, 2f);
         }
 
-        public void OnPhotonPlayerPropertiesChanged(object[] playerAndUpdatedProps)
+        // Player info methods
+        public int GetPlayerHP(PhotonPlayer player)
         {
-        }
+            if(player == PhotonNetwork.player)
+            {
+                return HeroController.instance.playerData.health;
+            }
 
-        public void OnPhotonRandomJoinFailed(object[] codeAndMsg)
-        {
-        }
-
-        public void OnReceivedRoomListUpdate()
-        {
-        }
-
-        public void OnUpdatedFriendList()
-        {
-        }
-
-        public void OnWebRpcResponse(OperationResponse response)
-        {
+            return playerList[player].health;
         }
     }
 }
