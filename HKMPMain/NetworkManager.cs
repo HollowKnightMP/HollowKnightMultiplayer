@@ -63,9 +63,16 @@ namespace HKMPMain
             }
             if (PlayerPrefs.HasKey("NonSteamFriends"))
             {
-                nonSteamFriendNames = JsonUtility.FromJson<FriendList>(PlayerPrefs.GetString("NonSteamFriends")).friendNames.ToList();
+                try
+                {
+                    nonSteamFriendNames = JsonUtility.FromJson<FriendList>(PlayerPrefs.GetString("NonSteamFriends")).friendNames.ToList();
 
-                friends.AddRange(nonSteamFriendNames);
+                    friends.AddRange(nonSteamFriendNames);
+                }
+                catch
+                {
+
+                }
             }
 
             PhotonNetwork.AuthValues = new AuthenticationValues(PhotonNetwork.playerName);
