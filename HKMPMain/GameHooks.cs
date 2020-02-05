@@ -210,36 +210,6 @@ namespace HKMPMain
                 self.Title.sprite = Sprite.Create(HKMP.logo, new Rect(0,0,HKMP.logo.width, HKMP.logo.height), new Vector2(0.5f, 0.5f));
                 self.Title.transform.localScale = Vector3.one * 2f;
             };
-
-            On.NailSlash.OnTriggerStay2D += (orig, self, collider) =>
-            {
-                orig(self, collider);
-
-                NetworkPlayer player = collider.GetComponent<NetworkPlayer>();
-                if(player && !player.photonView.isMine && player.canTakeDmg)
-                {
-                    player.takeDamageEffect.SendEvent("DAMAGE");
-                    CollisionSide side = CollisionSide.other;
-                    if (collider.transform.position.x < HeroController.instance.transform.position.x)
-                    {
-                        side = CollisionSide.right;
-                    }
-                    else
-                    {
-                        side = CollisionSide.left;
-                    }
-                    object[] content = new object[]
-                    {
-                        player.photonView.ownerId,
-                        side
-                    };
-
-                    PhotonNetwork.RaiseEvent(NetworkCallbacks.OnGetHit, content, true, new RaiseEventOptions()
-                    {
-                        CachingOption = EventCaching.DoNotCache
-                    });
-                }
-            };
         }
     }
 }

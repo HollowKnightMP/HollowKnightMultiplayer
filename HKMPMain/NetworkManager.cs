@@ -35,7 +35,7 @@ namespace HKMPMain
         [Serializable]
         public class FriendList
         {
-            public string[] steamFriendNames;
+            public string[] friendNames;
         }
 
         // Init methods
@@ -63,7 +63,7 @@ namespace HKMPMain
             }
             if (PlayerPrefs.HasKey("NonSteamFriends"))
             {
-                nonSteamFriendNames = JsonUtility.FromJson<FriendList>(PlayerPrefs.GetString("NonSteamFriends")).steamFriendNames.ToList();
+                nonSteamFriendNames = JsonUtility.FromJson<FriendList>(PlayerPrefs.GetString("NonSteamFriends")).friendNames.ToList();
 
                 friends.AddRange(nonSteamFriendNames);
             }
@@ -115,10 +115,8 @@ namespace HKMPMain
 
         public void OnApplicationQuit()
         {
-            PlayerPrefs.SetString("PlayerName", PhotonNetwork.playerName);
-            PlayerPrefs.SetString("Friends", JsonUtility.ToJson(friends));
             FriendList friendlist = new FriendList();
-            friendlist.steamFriendNames = nonSteamFriendNames.ToArray();
+            friendlist.friendNames = nonSteamFriendNames.ToArray();
 
             PlayerPrefs.SetString("NonSteamFriends", JsonUtility.ToJson(friendlist));
         }
@@ -223,11 +221,8 @@ namespace HKMPMain
             var box = playerObj.AddComponent<BoxCollider2D>();
             box.size = ((BoxCollider2D)HeroController.instance.col2d).size;
             box.offset = ((BoxCollider2D)HeroController.instance.col2d).offset;
-            playerObj.layer = (int)PhysLayers.ENEMIES;
+            playerObj.layer = (int)PhysLayers.BOUNCER;
             playerObj.AddComponent<BigBouncer>();
-
-            netSync.takeDamageEffect = GameObject.Instantiate<PlayMakerFSM>(HeroController.instance.damageEffectFSM, playerObj.transform);
-            netSync.takeDamageEffect.transform.localPosition = HeroController.instance.damageEffectFSM.transform.localPosition;
 
             view.ownershipTransfer = OwnershipOption.Takeover;
             view.synchronization = ViewSynchronization.UnreliableOnChange;

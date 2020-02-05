@@ -53,21 +53,6 @@ namespace HKMPMain
 
                 NetworkManager.main.CreateNailSwing(sender, dir, mantis, longnail, right);
             }
-            else if(code == OnGetHit)
-            {
-                PhotonPlayer target = PhotonPlayer.Find((int)(content as object[])[0]);
-                CollisionSide side = (CollisionSide)(content as object[])[1];
-
-                if(target == PhotonNetwork.player)
-                {
-                    HeroController.instance.TakeDamage(NetworkManager.main.playerList[PhotonPlayer.Find(sender)].gameObject, side, 0, 1);
-                }
-                else
-                {
-                    NetworkManager.main.playerList[target].takeDamageEffect.SendEvent("DAMAGE");
-                }
-                
-            }
             else if(code == OnEnterNewRoom)
             {
                 string data = (string)content;

@@ -14,7 +14,6 @@ namespace HKMPMain
         // OTHER PLAYER VALUES
         public MeshRenderer renderer;
         public tk2dSpriteAnimator anim;
-        public PlayMakerFSM takeDamageEffect;
 
         // RECIEVED DATA
         public Vector3 position;
