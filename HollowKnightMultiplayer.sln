@@ -10,6 +10,7 @@ EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{E2A2BDC0-AC52-46F7-A97B-19F4D80A899C}"
 ProjectSection(SolutionItems) = preProject
 	SharedConfig.targets = SharedConfig.targets
+	DevVars-template.targets = DevVars-template.targets
 EndProjectSection
 EndProject
 Global
