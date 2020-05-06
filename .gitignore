@@ -2,9 +2,14 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/HKMPMain/bin/Debug
-/HKMPMain/obj/Debug
+# Build files
+/*/bin
+/*/obj
 /.vs
-/PhotonUnityNetworking/bin/Debug
-/PhotonUnityNetworking/obj/Debug
+/.idea
 
+# Development config files
+DevVars.targets
+
+# Resharper settings
+*.DotSettings.user

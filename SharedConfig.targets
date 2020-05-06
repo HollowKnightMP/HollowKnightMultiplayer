@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="TestGameFolder">
+    <PropertyGroup>
+        <LangVersion>6</LangVersion>
+        
+        <DevVars>DevVars.targets</DevVars>
+        <DevVarsLoc>$(SolutionDir)$(DevVars)</DevVarsLoc>
+        <GameDir Condition="!Exists($(DevVarsLoc))">C:\Program Files (x86)\Steam\steamapps\common\Hollow Knight</GameDir>
+        <IsGameLibrary>false</IsGameLibrary>
+        <IsGameLibrary Condition="'$(OutputType)' == 'Library'">true</IsGameLibrary>
+    </PropertyGroup>
+
+    <Import Project="$(DevVarsLoc)" Condition="Exists($(DevVarsLoc))" />
+
+    <Target Name="MaybeCopyDevVars" Condition="!Exists($(GameDir)) and !Exists($(DevVarsLoc))">
+        <Copy SourceFiles="$(DevVarsLoc).example" DestinationFiles="$(DevVarsLoc)" />
+        <Error Text="It appears your Game installation is not in the default Steam directory. Please set the path correctly in $(DevVars) (it has been copied there for you)." />
+    </Target>
+
+    <Target Name="DevVarsInvalid" Condition="!Exists($(GameDir)) and Exists($(DevVarsLoc))">
+        <!-- If the default path is overriden in DevVars, and it doesn't exist -->
+        <Error Text="Your Game installation folder has not been found at the path defined in $(DevVars). Please set it correctly." Condition="Exists($(DevVarsLoc))" />
+    </Target>
+
+    <PropertyGroup>
+        <GameLibsDir>$(GameDir)\hollow_knight_Data\Managed\</GameLibsDir>
+    </PropertyGroup>
+
+    <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
+    <!-- Note that this is the first target, called by InitialTargets -->
+    <Target Name="TestGameFolder" DependsOnTargets="MaybeCopyDevVars;DevVarsInvalid" Condition="!Exists($(GameDir))" />
+
+    <!-- Default settings for debug/release builds -->
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+        <OutputPath>bin\Debug\</OutputPath>
+        <DefineConstants>DEBUG;TRACE</DefineConstants>
+    </PropertyGroup>
+    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+        <OutputPath>bin\Release\</OutputPath>
+        <DefineConstants>RELEASE;TRACE</DefineConstants>
+    </PropertyGroup>
+    
+    <!-- UnityEngine libraries to include implicitly for all projects -->
+    <ItemGroup Condition="'$(IsGameLibrary)' == 'true'">
+        <Reference Include="$(GameLibsDir)UnityEngine*.dll">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+</Project>
