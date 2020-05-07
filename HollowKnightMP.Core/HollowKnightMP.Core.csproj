@@ -85,6 +85,10 @@
       <Project>{ecfd1a1b-d43e-41b8-85fc-77a2fdc37f3b}</Project>
       <Name>PhotonUnity</Name>
     </ProjectReference>
+    <ProjectReference Include="..\SceneDebugger\Debuggers.csproj">
+      <Project>{ee3acfe8-8bb4-44d2-9aea-23b25644e436}</Project>
+      <Name>Debuggers</Name>
+    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Content Include="..\logo_black.png">
@@ -96,6 +100,5 @@
       <Link>logo_white.png</Link>
     </Content>
   </ItemGroup>
-  
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
