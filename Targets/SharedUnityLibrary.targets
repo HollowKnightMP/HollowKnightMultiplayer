@@ -13,34 +13,22 @@
         <IsGameLibrary Condition="'$(OutputType)' == 'Library'">true</IsGameLibrary>
     </PropertyGroup>
 
+    <!-- Verify that game directory exists -->
     <Import Project="$(DevVarsLoc)" Condition="Exists($(DevVarsLoc))" />
-
     <Target Name="MaybeCopyDevVars" Condition="!Exists($(GameDir)) and !Exists($(DevVarsLoc))">
         <Copy SourceFiles="$(DevVarsTemplateLoc)" DestinationFiles="$(DevVarsLoc)" />
         <Error Text="$(GameName) path not found at default location. Please set the path in $(DevVarsLoc) (file is created automatically)." />
     </Target>
-
     <Target Name="DevVarsInvalid" Condition="!Exists($(GameDir)) and Exists($(DevVarsLoc))">
         <!-- If the default path is overriden in DevVars, and it doesn't exist -->
         <Error Text="$(GameName) path defined in the $(DevVarsLoc) file does not exist. Path that was tried: $(GameDir)" Condition="Exists($(DevVarsLoc))" />
     </Target>
-
-    <PropertyGroup>
-        <GameLibsDir>$(GameDir)\hollow_knight_Data\Managed\</GameLibsDir>
-    </PropertyGroup>
-
     <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
     <!-- Note that this is the first target, called by InitialTargets -->
     <Target Name="TestGameFolder" DependsOnTargets="MaybeCopyDevVars;DevVarsInvalid" Condition="!Exists($(GameDir))" />
 
-    <!-- Default settings for debug/release builds -->
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-        <OutputPath>bin\Debug\</OutputPath>
-        <DefineConstants>DEBUG;TRACE</DefineConstants>
-    </PropertyGroup>
-    <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-        <OutputPath>bin\Release\</OutputPath>
-        <DefineConstants>RELEASE;TRACE</DefineConstants>
+    <PropertyGroup>
+        <GameLibsDir>$(GameDir)\hollow_knight_Data\Managed\</GameLibsDir>
     </PropertyGroup>
     
     <!-- UnityEngine libraries to include implicitly for all projects -->

@@ -5,7 +5,7 @@ using System.Text;
 using UnityEngine;
 using ModCommon;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public static class EnemyDatabase
     {

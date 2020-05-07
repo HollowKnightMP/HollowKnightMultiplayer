@@ -7,7 +7,7 @@ using UnityEngine;
 using ModCommon;
 using GlobalEnums;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     using SceneManager = UnityEngine.SceneManagement.SceneManager;
 

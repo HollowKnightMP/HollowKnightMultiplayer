@@ -7,28 +7,28 @@
     <ProjectGuid>{4607F1ED-BE60-4377-B642-958175626BA4}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>HKMPMain</RootNamespace>
-    <AssemblyName>HollowKnightMP</AssemblyName>
+    <RootNamespace>HollowKnightMP.Core</RootNamespace>
+    <AssemblyName>HollowKnightMP.Core</AssemblyName>
     <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <Deterministic>true</Deterministic>
     <TargetFrameworkProfile />
   </PropertyGroup>
+  <Import Project="$(SolutionDir)Targets\SharedProjectConfig.targets" />
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <OutputPath>..\HollowKnightMP\bin\Release\HKMP</OutputPath>
   </PropertyGroup>
-  <Import Project="$(SolutionDir)SharedConfig.targets" />
+  <Import Project="$(SolutionDir)Targets\SharedUnityLibrary.targets" />
   <ItemGroup>
     <Reference Include="ModCommon">
       <HintPath>$(GameLibsDir)Mods\ModCommon.dll</HintPath>
@@ -41,6 +41,11 @@
     </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>$(SolutionDir)Dependencies\Photon3Unity3D.dll</HintPath>
+    </Reference>
+    <!-- Needed because the mod API injects new types but it won't work with publicized dll -->
+    <Reference Include="$(GameLibsDir)Assembly-CSharp.dll">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>false</Private>
     </Reference>
     <!-- Recompiled Assembly-CSharp.dll where everything is made public -->
     <Reference Include="$(GameLibsDir)publicized_assemblies\*.dll">
@@ -81,5 +86,16 @@
       <Name>PhotonUnity</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\logo_black.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>logo_black.png</Link>
+    </Content>
+    <Content Include="..\logo_white.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>logo_white.png</Link>
+    </Content>
+  </ItemGroup>
+  
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
