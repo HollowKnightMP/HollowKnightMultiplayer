@@ -12,6 +12,10 @@
         <IsGameLibrary>false</IsGameLibrary>
         <IsGameLibrary Condition="'$(OutputType)' == 'Library'">true</IsGameLibrary>
     </PropertyGroup>
+    
+    <PropertyGroup Condition="'$(ModAsset)' == 'true'">
+        <OutputPath>..\HollowKnightMP\bin\Release\HKMP</OutputPath>
+    </PropertyGroup>
 
     <!-- Verify that game directory exists -->
     <Import Project="$(DevVarsLoc)" Condition="Exists($(DevVarsLoc))" />

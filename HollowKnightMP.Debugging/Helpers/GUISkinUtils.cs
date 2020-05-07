@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
 
-namespace Debuggers.Helpers
+namespace HollowKnightMP.Debugging.Helpers
 {
     public static class GUISkinUtils
     {

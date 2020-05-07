@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Debuggers.Helpers;
+using HollowKnightMP.Debugging.Helpers;
 using UnityEngine;
 
-namespace Debuggers
+namespace HollowKnightMP.Debugging
 {
     public abstract class BaseDebugger
     {
@@ -62,7 +62,7 @@ namespace Debuggers
         public enum GUISkinCreationOptions
         {
             /// <summary>
-            /// Uses the NitroxDebug skin.
+            /// Uses the <see cref="BaseDebugger"/> skin.
             /// </summary>
             DEFAULT,
 
