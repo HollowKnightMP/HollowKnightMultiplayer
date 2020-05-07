@@ -5,7 +5,16 @@ VisualStudioVersion = 15.0.28307.489
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PhotonUnity", "PhotonUnityNetworking\PhotonUnity.csproj", "{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HKMPMain", "HKMPMain\HKMPMain.csproj", "{4607F1ED-BE60-4377-B642-958175626BA4}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution", "Solution", "{E2A2BDC0-AC52-46F7-A97B-19F4D80A899C}"
+ProjectSection(SolutionItems) = preProject
+	DevVars-template.targets = DevVars-template.targets
+	Targets\SharedUnityLibrary.targets = Targets\SharedUnityLibrary.targets
+	Targets\SharedProjectConfig.targets = Targets\SharedProjectConfig.targets
+EndProjectSection
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP", "HollowKnightMP\HollowKnightMP.csproj", "{1946EB3A-8D1C-4E98-A6FB-57A1AE81837B}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP.Core", "HollowKnightMP.Core\HollowKnightMP.Core.csproj", "{4607F1ED-BE60-4377-B642-958175626BA4}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,6 +26,10 @@ Global
 		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{ECFD1A1B-D43E-41B8-85FC-77A2FDC37F3B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{1946EB3A-8D1C-4E98-A6FB-57A1AE81837B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{1946EB3A-8D1C-4E98-A6FB-57A1AE81837B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{1946EB3A-8D1C-4E98-A6FB-57A1AE81837B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{1946EB3A-8D1C-4E98-A6FB-57A1AE81837B}.Release|Any CPU.Build.0 = Release|Any CPU
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{4607F1ED-BE60-4377-B642-958175626BA4}.Release|Any CPU.ActiveCfg = Release|Any CPU

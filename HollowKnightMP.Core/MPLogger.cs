@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public static class MPLogger
     {

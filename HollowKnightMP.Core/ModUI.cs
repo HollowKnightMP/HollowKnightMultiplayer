@@ -1,7 +1,7 @@
 ﻿using UnityEngine;
 using UnityEngine.UI;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public class ModUI : MonoBehaviour
     {

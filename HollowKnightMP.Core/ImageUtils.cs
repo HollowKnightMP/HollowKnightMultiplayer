@@ -1,7 +1,7 @@
 ﻿using System.IO;
 using UnityEngine;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public static class ImageUtils
     {

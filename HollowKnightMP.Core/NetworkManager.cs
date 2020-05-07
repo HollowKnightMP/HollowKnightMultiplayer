@@ -7,7 +7,7 @@ using UnityEngine;
 using GlobalEnums;
 using Steamworks;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public class NetworkManager : MonoBehaviour
     {

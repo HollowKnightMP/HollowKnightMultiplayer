@@ -3,7 +3,7 @@ using Photon;
 using UnityEngine;
 using System.Collections.Generic;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public class NetworkPlayer : PunBehaviour, IPunObservable
     {

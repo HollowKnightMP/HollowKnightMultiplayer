@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project xmlns="http://schemas.microsoft.com/developer/msbuild/2003" InitialTargets="TestGameFolder">
+    <PropertyGroup>
+        <LangVersion>6</LangVersion>
+        
+        <DevVars>DevVars.targets</DevVars>
+        <DevVarsTemplate>DevVars-template.targets</DevVarsTemplate>
+        <DevVarsLoc>$(SolutionDir)$(DevVars)</DevVarsLoc>
+        <DevVarsTemplateLoc>$(SolutionDir)$(DevVarsTemplate)</DevVarsTemplateLoc>
+        <GameName>Hollow Knight</GameName>
+        <GameDir Condition="!Exists($(DevVarsLoc))">C:\Program Files (x86)\Steam\steamapps\common\$(GameName)</GameDir>
+        <IsGameLibrary>false</IsGameLibrary>
+        <IsGameLibrary Condition="'$(OutputType)' == 'Library'">true</IsGameLibrary>
+    </PropertyGroup>
+
+    <!-- Verify that game directory exists -->
+    <Import Project="$(DevVarsLoc)" Condition="Exists($(DevVarsLoc))" />
+    <Target Name="MaybeCopyDevVars" Condition="!Exists($(GameDir)) and !Exists($(DevVarsLoc))">
+        <Copy SourceFiles="$(DevVarsTemplateLoc)" DestinationFiles="$(DevVarsLoc)" />
+        <Error Text="$(GameName) path not found at default location. Please set the path in $(DevVarsLoc) (file is created automatically)." />
+    </Target>
+    <Target Name="DevVarsInvalid" Condition="!Exists($(GameDir)) and Exists($(DevVarsLoc))">
+        <!-- If the default path is overriden in DevVars, and it doesn't exist -->
+        <Error Text="$(GameName) path defined in the $(DevVarsLoc) file does not exist. Path that was tried: $(GameDir)" Condition="Exists($(DevVarsLoc))" />
+    </Target>
+    <!-- Using DependsOnTarget with Conditional targets as an if else structure... -->
+    <!-- Note that this is the first target, called by InitialTargets -->
+    <Target Name="TestGameFolder" DependsOnTargets="MaybeCopyDevVars;DevVarsInvalid" Condition="!Exists($(GameDir))" />
+
+    <PropertyGroup>
+        <GameLibsDir>$(GameDir)\hollow_knight_Data\Managed\</GameLibsDir>
+    </PropertyGroup>
+    
+    <!-- UnityEngine libraries to include implicitly for all projects -->
+    <ItemGroup Condition="'$(IsGameLibrary)' == 'true'">
+        <Reference Include="$(GameLibsDir)UnityEngine*.dll">
+            <SpecificVersion>False</SpecificVersion>
+            <Private>false</Private>
+        </Reference>
+    </ItemGroup>
+</Project>

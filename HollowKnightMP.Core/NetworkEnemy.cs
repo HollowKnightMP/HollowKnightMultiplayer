@@ -6,7 +6,7 @@ using System.Text;
 using Photon;
 using UnityEngine;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public class NetworkEnemy : PunBehaviour, IPunObservable
     {

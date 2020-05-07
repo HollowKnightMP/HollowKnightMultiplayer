@@ -8,7 +8,7 @@ using UnityEngine;
 using Hashtable = ExitGames.Client.Photon.Hashtable;
 using GlobalEnums;
 
-namespace HKMPMain
+namespace HollowKnightMP.Core
 {
     public class NetworkCallbacks : MonoBehaviour, IPunCallbacks
     {

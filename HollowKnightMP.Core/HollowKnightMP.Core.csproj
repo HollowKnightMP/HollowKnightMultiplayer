@@ -1,0 +1,101 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="15.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProjectGuid>{4607F1ED-BE60-4377-B642-958175626BA4}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>HollowKnightMP.Core</RootNamespace>
+    <AssemblyName>HollowKnightMP.Core</AssemblyName>
+    <TargetFrameworkVersion>v3.5</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <Deterministic>true</Deterministic>
+    <TargetFrameworkProfile />
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)Targets\SharedProjectConfig.targets" />
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <Optimize>true</Optimize>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <OutputPath>..\HollowKnightMP\bin\Release\HKMP</OutputPath>
+  </PropertyGroup>
+  <Import Project="$(SolutionDir)Targets\SharedUnityLibrary.targets" />
+  <ItemGroup>
+    <Reference Include="ModCommon">
+      <HintPath>$(GameLibsDir)Mods\ModCommon.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="PlayMaker">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>$(GameLibsDir)PlayMaker.dll</HintPath>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="Photon3Unity3D">
+      <HintPath>$(SolutionDir)Dependencies\Photon3Unity3D.dll</HintPath>
+    </Reference>
+    <!-- Needed because the mod API injects new types but it won't work with publicized dll -->
+    <Reference Include="$(GameLibsDir)Assembly-CSharp.dll">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+    <!-- Recompiled Assembly-CSharp.dll where everything is made public -->
+    <Reference Include="$(GameLibsDir)publicized_assemblies\*.dll">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+    <!-- Mono plugins that Unity bundles into firstpass dll -->
+    <Reference Include="$(GameLibsDir)Assembly-CSharp-firstpass.dll">
+      <SpecificVersion>False</SpecificVersion>
+      <Private>false</Private>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Xml.Linq" />
+    <Reference Include="System.Data.DataSetExtensions" />
+    <Reference Include="System.Data" />
+    <Reference Include="System.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="EnemyDatabase.cs" />
+    <Compile Include="EnumsExtensions.cs" />
+    <Compile Include="FollowTransform.cs" />
+    <Compile Include="GameHooks.cs" />
+    <Compile Include="HKMP.cs" />
+    <Compile Include="ImageUtils.cs" />
+    <Compile Include="ModUI.cs" />
+    <Compile Include="MPLogger.cs" />
+    <Compile Include="NetworkCallbacks.cs" />
+    <Compile Include="NetworkEnemy.cs" />
+    <Compile Include="NetworkManager.cs" />
+    <Compile Include="NetworkPlayer.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\PhotonUnityNetworking\PhotonUnity.csproj">
+      <Project>{ecfd1a1b-d43e-41b8-85fc-77a2fdc37f3b}</Project>
+      <Name>PhotonUnity</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <Content Include="..\logo_black.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>logo_black.png</Link>
+    </Content>
+    <Content Include="..\logo_white.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+      <Link>logo_white.png</Link>
+    </Content>
+  </ItemGroup>
+  
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+</Project>
