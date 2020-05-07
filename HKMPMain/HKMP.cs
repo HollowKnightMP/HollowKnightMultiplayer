@@ -7,6 +7,7 @@ using System.Text;
 using Modding;
 using UnityEngine;
 using Console = System.Console;
+using Debuggers;
 
 namespace HKMPMain
 {
@@ -16,14 +17,24 @@ namespace HKMPMain
 
         public override void Initialize()
         {
-            logo = ImageUtils.LoadTextureFromFile(Path.Combine(Environment.CurrentDirectory, "hollow_knight_Data/Managed/Mods/HKMP/logo_white.png"));
+            logo = ImageUtils.LoadTextureFromFile(Path.Combine(Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location), "HKMP/logo_white.png"));
 
             GameObject netManager = new GameObject("Network Manager");
             netManager.AddComponent<NetworkManager>();
             netManager.AddComponent<NetworkCallbacks>();
             GameObject.DontDestroyOnLoad(netManager);
 
+            CreateDebugger(netManager);
+
             //AppDomain.CurrentDomain.AssemblyResolve += ResolveAssemblies;
+        }
+
+        private void CreateDebugger(GameObject netManager)
+        {
+            GameObject debugger = new GameObject();
+            debugger.name = "Debug manager";
+            debugger.AddComponent<HKMPDebugManager>();
+            debugger.transform.SetParent(netManager.transform);
         }
 
         Assembly ResolveAssemblies(object sender, ResolveEventArgs args)
