@@ -1,21 +1,21 @@
 ﻿using System;
 using System.IO;
 using System.Reflection;
+using HollowKnightMP.Debugging;
 using UnityEngine;
 using Object = UnityEngine.Object;
-using Debuggers;
 
 namespace HollowKnightMP.Core
 {
     public class HKMP
     {
-        public static string ModAssetsDir { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Path.Combine(Environment.CurrentDirectory, @"hollow_knight_Data\Managed\Mods");
+        public static string ModAssetsDir { get; } = Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location) ?? Path.Combine(Environment.CurrentDirectory, @"hollow_knight_Data\Managed\Mods\HKMP");
 
         public static Texture2D logo;
 
         public HKMP()
         {
-            logo = ImageUtils.LoadTextureFromFile(Path.Combine(ModAssetsDir, @"HKMP\logo_white.png"));
+            logo = ImageUtils.LoadTextureFromFile(Path.Combine(ModAssetsDir, @"logo_white.png"));
 
             var netManager = new GameObject("Network Manager");
             netManager.AddComponent<NetworkManager>();
