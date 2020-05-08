@@ -5,13 +5,13 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Text.RegularExpressions;
-using Debuggers.Helpers;
+using HollowKnightMP.Debugging.Helpers;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 using USceneManager = UnityEngine.SceneManagement.SceneManager;
-using UnityEngine.SceneManagement;
 
-namespace Debuggers
+namespace HollowKnightMP.Debugging
 {
     public class SceneDebugger : BaseDebugger
     {
@@ -172,14 +172,14 @@ namespace Debuggers
 
                             if (isLoaded)
                             {
-                                if (GUILayout.Button("Load", "loadScene"))
+                                if (GUILayout.Button("Unload", "loadScene"))
                                 {
                                     USceneManager.UnloadSceneAsync(i);
                                 }
                             }
                             else
                             {
-                                if (GUILayout.Button("Unload", "loadScene"))
+                                if (GUILayout.Button("Load", "loadScene"))
                                 {
                                     USceneManager.LoadSceneAsync(i);
                                 }

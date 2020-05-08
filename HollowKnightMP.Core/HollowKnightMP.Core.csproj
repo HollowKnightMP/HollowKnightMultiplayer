@@ -26,7 +26,7 @@
     <Optimize>true</Optimize>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <OutputPath>..\HollowKnightMP\bin\Release\HKMP</OutputPath>
+    <ModAsset>true</ModAsset>
   </PropertyGroup>
   <Import Project="$(SolutionDir)Targets\SharedUnityLibrary.targets" />
   <ItemGroup>
@@ -41,11 +41,6 @@
     </Reference>
     <Reference Include="Photon3Unity3D">
       <HintPath>$(SolutionDir)Dependencies\Photon3Unity3D.dll</HintPath>
-    </Reference>
-    <!-- Needed because the mod API injects new types but it won't work with publicized dll -->
-    <Reference Include="$(GameLibsDir)Assembly-CSharp.dll">
-      <SpecificVersion>False</SpecificVersion>
-      <Private>false</Private>
     </Reference>
     <!-- Recompiled Assembly-CSharp.dll where everything is made public -->
     <Reference Include="$(GameLibsDir)publicized_assemblies\*.dll">
@@ -81,13 +76,13 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\HollowKnightMP.Debugging\HollowKnightMP.Debugging.csproj">
+      <Project>{ee3acfe8-8bb4-44d2-9aea-23b25644e436}</Project>
+      <Name>HollowKnightMP.Debugging</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PhotonUnityNetworking\PhotonUnity.csproj">
       <Project>{ecfd1a1b-d43e-41b8-85fc-77a2fdc37f3b}</Project>
       <Name>PhotonUnity</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\SceneDebugger\Debuggers.csproj">
-      <Project>{ee3acfe8-8bb4-44d2-9aea-23b25644e436}</Project>
-      <Name>Debuggers</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

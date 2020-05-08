@@ -16,7 +16,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP", "HollowKni
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP.Core", "HollowKnightMP.Core\HollowKnightMP.Core.csproj", "{4607F1ED-BE60-4377-B642-958175626BA4}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Debuggers", "SceneDebugger\Debuggers.csproj", "{EE3ACFE8-8BB4-44D2-9AEA-23B25644E436}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HollowKnightMP.Debugging", "HollowKnightMP.Debugging\HollowKnightMP.Debugging.csproj", "{EE3ACFE8-8BB4-44D2-9AEA-23B25644E436}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
